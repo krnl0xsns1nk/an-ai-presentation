@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="fr" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="Présentation interactive sur l’intelligence artificielle pour des lycéens.">
+<title>Intelligence artificielle : un voyage</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Hanken+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<script src="logic.js" defer></script>
+</head>
+<body>
+<!--
+  CONVENTIONS (pour style.css et logic.js)
+  - .chapter > .scene : une scène = un écran. Une seule scène a la classe .is-active.
+  - [data-step="n"]     : élément révélé à l’étape n de la scène (visible si étape ≥ n).
+  - [data-step-out="n"] : élément masqué à partir de l’étape n.
+  - Le nombre d’étapes d’une scène = plus grand data-step trouvé dans la scène (aucun total à maintenir).
+  - [data-verify]       : information factuelle à vérifier avant diffusion.
+  - Classes d’état prévues : .is-active .is-visible .is-past .is-open .is-fullscreen .no-js
+-->
+
+<noscript><p class="noscript-message">Cette présentation a besoin de JavaScript pour fonctionner.</p></noscript>
+
+<!-- Calques persistants (continuité visuelle entre les scènes) -->
+<canvas id="bg-network" class="layer layer-network" aria-hidden="true"></canvas>
+<div id="bg-vignette" class="layer layer-vignette" aria-hidden="true"></div>
+<div id="morph-layer" class="layer layer-morph" aria-hidden="true"><!-- éléments partagés entre scènes (ligne, réseau, requête) --></div>
+
+<div id="timeline-layer" class="layer layer-timeline" aria-hidden="true">
+  <ol id="timeline-track" class="timeline-track">
+    <li data-year="1950" data-scene="scene-2-turing"><span class="timeline-year">1950</span></li>
+    <li data-year="1956" data-scene="scene-2-dartmouth"><span class="timeline-year">1956</span></li>
+    <li data-year="1980" data-scene="scene-2-experts"><span class="timeline-year">Années 1980</span></li>
+    <li data-year="1990" data-scene="scene-2-apprentissage"><span class="timeline-year">Dès les années 1990</span></li>
+    <li data-year="2012" data-scene="scene-2-images"><span class="timeline-year">2012</span></li>
+    <li data-year="2017" data-scene="scene-2-transformers"><span class="timeline-year">2017</span></li>
+    <li data-year="2022" data-scene="scene-2-generatif"><span class="timeline-year">2022</span></li>
+    <li data-year="now" data-scene="scene-2-acceleration"><span class="timeline-year">Aujourd’hui</span></li>
+  </ol>
+</div>
+
+<!-- Interface du présentateur -->
+<header id="hud-top" class="hud hud-top">
+  <nav id="chapter-nav" class="chapter-nav" aria-label="Chapitres">
+    <ol>
+      <li data-chapter="1"><span class="chapter-label">Le début</span></li>
+      <li data-chapter="2"><span class="chapter-label">Le voyage</span></li>
+      <li data-chapter="3"><span class="chapter-label">La course</span></li>
+      <li data-chapter="4"><span class="chapter-label">L’intérieur</span></li>
+      <li data-chapter="5"><span class="chapter-label">L’application</span></li>
+    </ol>
+  </nav>
+  <div class="hud-tools">
+    <button type="button" id="btn-sources" aria-haspopup="dialog">Sources</button>
+    <button type="button" id="btn-help" aria-haspopup="dialog">Aide</button>
+    <button type="button" id="btn-fullscreen">Plein écran</button>
+  </div>
+</header>
+
+<main id="stage" class="stage">
+
+<!-- ═════════ CHAPITRE 1 : LE DÉBUT ═════════ -->
+<section class="chapter" id="chapter-1" data-chapter="1" aria-label="Chapitre 1 : le début">
+
+  <article class="scene" id="scene-1-ouverture" data-chapter="1" aria-label="Ouverture">
+    <h1 class="title" data-step="3" aria-label="Intelligence artificielle : comprendre la technologie qui transforme notre monde">
+      <span class="title-main">Intelligence artificielle</span>
+      <span class="title-sub">comprendre la technologie qui transforme notre monde</span>
+    </h1>
+  </article>
+
+  <article class="scene" id="scene-1-quotidien" data-chapter="1" aria-label="L’IA au quotidien">
+    <p class="scene-lead" data-step="0">Ce n’est plus de la science-fiction.</p>
+    <ul class="object-row">
+      <li class="object" data-step="1"><svg class="illustration" data-illustration="telephone" viewBox="0 0 120 150" aria-hidden="true"><!-- téléphone qui reconnaît un visage --></svg><p class="caption">Le téléphone qui reconnaît ton visage</p></li>
+      <li class="object" data-step="2"><svg class="illustration" data-illustration="traduction" viewBox="0 0 120 150" aria-hidden="true"><!-- traduction --></svg><p class="caption">La traduction instantanée d’une langue à l’autre</p></li>
+      <li class="object" data-step="3"><svg class="illustration" data-illustration="robot" viewBox="0 0 120 150" aria-hidden="true"><!-- robot --></svg><p class="caption">Le robot qui perçoit son environnement et réagit</p></li>
+      <li class="object" data-step="4"><svg class="illustration" data-illustration="chatbot" viewBox="0 0 120 150" aria-hidden="true"><!-- assistant conversationnel --></svg><p class="caption">L’assistant qui répond à nos questions</p></li>
+    </ul>
+  </article>
+
+  <article class="scene" id="scene-1-questions" data-chapter="1" aria-label="Les quatre questions">
+    <p class="scene-lead" data-step="0">Pour comprendre l’IA, nous suivrons quatre questions.</p>
+    <ol class="question-list">
+      <li class="question" data-step="1" data-target-chapter="1"><span class="question-text">Qu’est-ce que l’IA, exactement&nbsp;?</span><span class="question-chapter">chapitre 1</span></li>
+      <li class="question" data-step="2" data-target-chapter="2"><span class="question-text">Comment en est-on arrivé là&nbsp;?</span><span class="question-chapter">chapitres 2 et 3</span></li>
+      <li class="question" data-step="3" data-target-chapter="4"><span class="question-text">Comment ça marche&nbsp;?</span><span class="question-chapter">chapitre 4</span></li>
+      <li class="question" data-step="4" data-target-chapter="5"><span class="question-text">Que peut-elle faire, et que ne peut-elle pas faire&nbsp;?</span><span class="question-chapter">chapitre 5</span></li>
+    </ol>
+  </article>
+</section>
+
+<!-- ═════════ CHAPITRE 2 : LE VOYAGE ═════════ -->
+<section class="chapter" id="chapter-2" data-chapter="2" aria-label="Chapitre 2 : le voyage">
+
+  <article class="scene scene-milestone" id="scene-2-turing" data-chapter="2" data-year="1950" aria-label="1950, Alan Turing">
+    <p class="scene-lead" data-step="0">Commençons par le début.</p>
+    <p class="year" data-step="1">1950</p>
+    <h2 class="milestone-title" data-step="1">Alan Turing pose la question</h2>
+    <p class="milestone-change" data-step="2" data-verify>Le mathématicien publie un article qui demande si une machine peut penser.</p>
+    <p class="milestone-why" data-step="3">Pourquoi c’est important&nbsp;: l’idée d’une machine intelligente devient une question sérieuse.</p>
+  </article>
+
+  <article class="scene scene-milestone" id="scene-2-dartmouth" data-chapter="2" data-year="1956" aria-label="1956, naissance de l’IA">
+    <p class="year" data-step="0">1956</p>
+    <h2 class="milestone-title" data-step="1">L’IA devient un domaine de recherche</h2>
+    <p class="milestone-change" data-step="2" data-verify>Des chercheurs se réunissent à Dartmouth (États-Unis) et le terme «&nbsp;intelligence artificielle&nbsp;» est adopté.</p>
+    <p class="milestone-why" data-step="3">Pourquoi c’est important&nbsp;: un projet scientifique commun commence.</p>
+  </article>
+
+  <article class="scene scene-milestone" id="scene-2-experts" data-chapter="2" data-year="1980" aria-label="Les systèmes experts">
+    <p class="year" data-step="0">Années 1980</p>
+    <h2 class="milestone-title" data-step="1">Les systèmes experts</h2>
+    <figure class="rules-diagram" data-step="2"><svg class="illustration" data-illustration="regles" viewBox="0 0 400 200" aria-hidden="true"><!-- règles «si… alors…» écrites à la main --></svg></figure>
+    <p class="milestone-change" data-step="2" data-verify>Des experts écrivent des règles «&nbsp;si… alors…&nbsp;» que l’ordinateur applique.</p>
+    <p class="milestone-limit" data-step="3">Limite&nbsp;: il faut tout écrire à la main, et le système échoue dès qu’une situation sort des règles.</p>
+  </article>
+
+  <article class="scene scene-milestone" id="scene-2-apprentissage" data-chapter="2" data-year="1990" aria-label="L’apprentissage automatique">
+    <p class="year" data-step="0">Dès les années 1990</p>
+    <h2 class="milestone-title" data-step="1">Apprendre à partir d’exemples</h2>
+    <figure class="rules-vs-learning" data-step="2"><svg class="illustration" data-illustration="regles-vs-exemples" viewBox="0 0 400 200" aria-hidden="true"><!-- règles écrites → exemples + apprentissage --></svg></figure>
+    <p class="milestone-change" data-step="2" data-verify>Au lieu de recevoir des règles, la machine en déduit à partir de nombreux exemples. Les réseaux de neurones en sont une forme.</p>
+    <p class="milestone-why" data-step="3">Pourquoi c’est important&nbsp;: la machine peut traiter des cas que personne n’avait prévus.</p>
+  </article>
+
+  <article class="scene scene-milestone" id="scene-2-images" data-chapter="2" data-year="2012" aria-label="2012, reconnaissance d’images">
+    <p class="year" data-step="0">2012</p>
+    <h2 class="milestone-title" data-step="1">Les machines apprennent à voir</h2>
+    <figure class="image-recognition" data-step="2"><svg class="illustration" data-illustration="reconnaissance-image" viewBox="0 0 400 240" aria-hidden="true"><!-- image → étiquette --></svg></figure>
+    <p class="milestone-change" data-step="2" data-verify>Un réseau de neurones profond remporte un grand concours de reconnaissance d’images avec une nette avance.</p>
+    <p class="milestone-why" data-step="3">Pourquoi c’est important&nbsp;: l’apprentissage profond devient la méthode dominante.</p>
+  </article>
+
+  <article class="scene scene-milestone" id="scene-2-transformers" data-chapter="2" data-year="2017" aria-label="2017, les Transformers">
+    <p class="year" data-step="0">2017</p>
+    <h2 class="milestone-title" data-step="1">Les Transformers</h2>
+    <figure class="attention-teaser" data-step="2"><svg class="illustration" data-illustration="attention" viewBox="0 0 400 200" aria-hidden="true"><!-- mots reliés par l’attention --></svg></figure>
+    <p class="milestone-change" data-step="2" data-verify>Des chercheurs de Google présentent une architecture qui relie les mots d’un texte entre eux grâce à l’attention.</p>
+    <p class="milestone-why" data-step="3">Pourquoi c’est important&nbsp;: c’est la base des modèles de langage actuels.</p>
+  </article>
+
+  <article class="scene scene-milestone" id="scene-2-generatif" data-chapter="2" data-year="2022" aria-label="2022, l’IA générative">
+    <p class="year" data-step="0">2022</p>
+    <h2 class="milestone-title" data-step="1">L’IA générative s’ouvre au public</h2>
+    <p class="milestone-change" data-step="2" data-verify>Des outils capables de produire du texte et des images deviennent accessibles à tous, gratuitement ou presque.</p>
+    <p class="milestone-why" data-step="3">Pourquoi c’est important&nbsp;: pour la première fois, des millions de personnes l’essaient elles-mêmes.</p>
+  </article>
+
+  <article class="scene" id="scene-2-acceleration" data-chapter="2" aria-label="L’accélération">
+    <p class="scene-lead" data-step="0">Des décennies entre les premières étapes.</p>
+    <p class="scene-lead" data-step="1">Quelques années entre les dernières.</p>
+    <p class="scene-lead emphasis" data-step="2">Et nous sommes maintenant dans ce présent.</p>
+  </article>
+
+  <article class="scene scene-transition" id="scene-2-transition" data-chapter="2" aria-label="Transition vers l’industrie">
+    <blockquote class="transition-line" data-step="0"><p>«&nbsp;Mais cette évolution ne concerne pas seulement les chercheurs. Aujourd’hui, une véritable industrie s’est construite autour de l’IA.&nbsp;»</p></blockquote>
+  </article>
+</section>
+
+<!-- ═════════ CHAPITRE 3 : LA COURSE ═════════ -->
+<section class="chapter" id="chapter-3" data-chapter="3" aria-label="Chapitre 3 : la course">
+
+  <article class="scene" id="scene-3-course" data-chapter="3" aria-label="Une course mondiale">
+    <h2 class="scene-title" data-step="0">Une course mondiale</h2>
+    <figure class="race-diagram" data-step="1"><svg class="illustration" data-illustration="course" viewBox="0 0 1200 300" aria-hidden="true"><!-- la ligne du temps devient une piste de course --></svg></figure>
+    <p class="scene-lead" data-step="2">Plusieurs acteurs avancent en même temps, avec des moyens très différents.</p>
+  </article>
+
+  <article class="scene" id="scene-3-acteurs" data-chapter="3" aria-label="Les principaux acteurs">
+    <h2 class="scene-title" data-step="0">Qui participe&nbsp;?</h2>
+    <ul class="actors" data-verify>
+      <li class="actor" data-step="1" data-actor="openai"><span class="actor-name">OpenAI</span><span class="actor-models" data-placeholder>Modèles : à vérifier</span></li>
+      <li class="actor" data-step="2" data-actor="google"><span class="actor-name">Google</span><span class="actor-models" data-placeholder>Modèles : à vérifier</span></li>
+      <li class="actor" data-step="3" data-actor="anthropic"><span class="actor-name">Anthropic</span><span class="actor-models" data-placeholder>Modèles : à vérifier</span></li>
+      <li class="actor" data-step="4" data-actor="autres"><span class="actor-name">Et d’autres</span><span class="actor-models" data-placeholder>Acteurs à choisir et à vérifier (dont européens)</span></li>
+    </ul>
+  </article>
+
+  <article class="scene" id="scene-3-calcul" data-chapter="3" aria-label="La puissance de calcul">
+    <h2 class="scene-title" data-step="0">Écrire un algorithme ne suffit pas</h2>
+    <figure class="compute-diagram"><svg class="illustration" data-illustration="gpu" viewBox="0 0 800 300" aria-hidden="true"><!-- processeurs graphiques (GPU) en grand nombre --></svg></figure>
+    <p class="scene-lead" data-step="1">Entraîner un grand modèle demande une énorme puissance de calcul.</p>
+    <p class="scene-lead" data-step="2">Elle est fournie par des GPU, des processeurs adaptés aux calculs en parallèle.</p>
+  </article>
+
+  <article class="scene" id="scene-3-datacenter" data-chapter="3" aria-label="Les centres de données">
+    <h2 class="scene-title" data-step="0">Des centres de données</h2>
+    <figure class="datacenter-diagram" data-step="1"><svg class="illustration" data-illustration="datacenter" viewBox="0 0 1000 400" aria-hidden="true"><!-- réseau d’ordinateurs → baies de serveurs --></svg></figure>
+    <p class="scene-lead" data-step="2">Ces machines consomment de l’électricité et doivent être refroidies.</p>
+    <p class="fact" data-step="3" data-verify data-placeholder>Chiffre de consommation : à vérifier et à sourcer avant affichage.</p>
+  </article>
+
+  <article class="scene" id="scene-3-investissement" data-chapter="3" aria-label="Les coûts">
+    <h2 class="scene-title" data-step="0">Un coût considérable</h2>
+    <ul class="cost-stack">
+      <li class="cost" data-step="1">Recherche et chercheurs</li>
+      <li class="cost" data-step="2">Puissance de calcul</li>
+      <li class="cost" data-step="3">Données</li>
+      <li class="cost" data-step="4">Énergie et infrastructure</li>
+    </ul>
+    <p class="fact" data-step="5" data-verify data-placeholder>Ordres de grandeur d’investissement : à vérifier, sans présenter de prévision comme un fait.</p>
+  </article>
+
+  <article class="scene" id="scene-3-societe" data-chapter="3" aria-label="Emploi, règles et sécurité">
+    <h2 class="scene-title" data-step="0">Des questions pour tous</h2>
+    <ul class="issue-list">
+      <li class="issue" data-step="1" data-issue="emploi"><h3>Emploi</h3><p>Certains métiers changent. Les effets exacts restent débattus.</p></li>
+      <li class="issue" data-step="2" data-issue="regulation"><h3>Règles</h3><p>Les États cherchent comment encadrer ces technologies.</p></li>
+      <li class="issue" data-step="3" data-issue="securite"><h3>Sécurité</h3><p>Éviter les usages dangereux et les erreurs graves.</p></li>
+      <li class="issue" data-step="4" data-issue="concurrence"><h3>Concurrence</h3><p>Peu d’acteurs ont les moyens de construire les plus grands modèles.</p></li>
+    </ul>
+  </article>
+
+  <article class="scene" id="scene-3-idee" data-chapter="3" aria-label="L’idée centrale">
+    <p class="scene-lead emphasis" data-step="0">Une IA puissante, ce n’est pas seulement un algorithme.</p>
+    <p class="scene-lead" data-step="1">C’est aussi du calcul, des infrastructures, de la recherche et de gros investissements.</p>
+  </article>
+
+  <article class="scene scene-transition" id="scene-3-transition" data-chapter="3" aria-label="Transition vers le fonctionnement">
+    <blockquote class="transition-line" data-step="0"><p>«&nbsp;Mais derrière cette course technologique, une question demeure&nbsp;: que se passe-t-il réellement à l’intérieur d’un modèle d’IA&nbsp;?&nbsp;»</p></blockquote>
+  </article>
+</section>
+
+<!-- ═════════ CHAPITRE 4 : L’INTÉRIEUR ═════════ -->
+<section class="chapter" id="chapter-4" data-chapter="4" aria-label="Chapitre 4 : l’intérieur de la machine">
+
+  <article class="scene" id="scene-4-entree" data-chapter="4" aria-label="Du dehors au dedans">
+    <h2 class="scene-title" data-step="0">De l’extérieur…</h2>
+    <div class="chat-window" data-step="1">
+      <p class="chat-message" data-role="user">Pourquoi le ciel est-il bleu&nbsp;?</p>
+      <p class="chat-message" data-role="assistant" data-step="2" data-placeholder>[Réponse à afficher]</p>
+    </div>
+    <p class="scene-lead" data-step="3">…à l’intérieur.</p>
+  </article>
+
+  <article class="scene scene-diagram" id="scene-4-machine" data-chapter="4" aria-label="Comment un modèle de langage produit du texte">
+    <h2 class="scene-title" data-step="0">De la question à la réponse</h2>
+
+    <div class="llm-input-bar" data-step="1">
+      <label for="llm-input">Question</label>
+      <input id="llm-input" type="text" value="Pourquoi le ciel est-il bleu ?" maxlength="60" autocomplete="off" data-ignore-shortcuts>
+      <button type="button" id="llm-run">Analyser</button>
+    </div>
+
+    <svg id="llm-diagram" class="llm-diagram" viewBox="0 0 1200 520" role="img" aria-label="Schéma simplifié du traitement d’une question par un modèle de langage">
+      <g id="llm-stage-1" class="llm-stage" data-step="1"><rect class="llm-box" x="40" y="200" width="220" height="80"/><text class="llm-label" x="150" y="246">Question</text></g>
+      <g id="llm-stage-2" class="llm-stage" data-step="2"><g id="llm-tokens"><!-- tokens créés par JS --></g><text class="llm-label" x="400" y="140">Tokens</text></g>
+      <g id="llm-stage-3" class="llm-stage" data-step="3"><g id="llm-network"><!-- couches de neurones créées par JS --></g><text class="llm-label" x="660" y="80">Réseau de neurones</text></g>
+      <g id="llm-stage-4" class="llm-stage" data-step="4"><g id="llm-attention"><!-- liens d’attention créés par JS --></g><text class="llm-label" x="660" y="470">Attention</text></g>
+      <g id="llm-stage-5" class="llm-stage" data-step="5"><g id="llm-generation"><!-- token suivant, choisi un par un --></g><text class="llm-label" x="930" y="140">Génération</text></g>
+      <g id="llm-stage-6" class="llm-stage" data-step="6"><rect class="llm-box" x="960" y="200" width="200" height="80"/><text class="llm-label" x="1060" y="246">Texte lisible</text></g>
+    </svg>
+
+    <ol class="llm-captions" id="llm-captions">
+      <li data-step="1">Une question est saisie.</li>
+      <li data-step="2">Le texte est découpé en morceaux appelés tokens.</li>
+      <li data-step="3">Le réseau de neurones traite ces tokens.</li>
+      <li data-step="4">L’attention relie les tokens qui comptent les uns pour les autres.</li>
+      <li data-step="5">Le modèle choisit le token suivant, puis recommence.</li>
+      <li data-step="6">Les tokens sont reconvertis en texte lisible.</li>
+    </ol>
+    <p class="diagram-disclaimer" data-step="1">Schéma simplifié&nbsp;: un vrai modèle est bien plus complexe.</p>
+  </article>
+
+  <article class="scene" id="scene-4-apprentissage" data-chapter="4" aria-label="Données, paramètres, apprentissage">
+    <h2 class="scene-title" data-step="0">Comment le modèle apprend</h2>
+    <ul class="concept-row">
+      <li class="concept" data-step="1"><svg class="illustration" data-illustration="donnees" viewBox="0 0 200 200" aria-hidden="true"><!-- beaucoup de textes --></svg><h3>Données d’entraînement</h3><p>Une grande quantité de textes.</p></li>
+      <li class="concept" data-step="2"><svg class="illustration" data-illustration="parametres" viewBox="0 0 200 200" aria-hidden="true"><!-- réglages --></svg><h3>Paramètres</h3><p>Des réglages internes, souvent des milliards.</p></li>
+      <li class="concept" data-step="3"><svg class="illustration" data-illustration="neurones" viewBox="0 0 200 200" aria-hidden="true"><!-- neurones et connexions --></svg><h3>Réseau de neurones</h3><p>Des calculs en couches, inspirés très librement du cerveau.</p></li>
+    </ul>
+    <p class="scene-lead" data-step="4">Pendant l’entraînement, le modèle ajuste ses paramètres pour mieux prévoir le mot suivant.</p>
+    <p class="scene-lead emphasis" data-step="5">Il apprend des régularités, pas des vérités.</p>
+  </article>
+
+  <article class="scene" id="scene-4-erreur" data-chapter="4" aria-label="Une réponse convaincante mais fausse">
+    <h2 class="scene-title" data-step="0">Plausible n’est pas vrai</h2>
+    <p class="demo-label" data-step="0">Exemple illustratif, non issu d’un vrai modèle.</p>
+    <div class="chat-window" data-step="1">
+      <p class="chat-message" data-role="user">Résume le roman «&nbsp;Le Cartographe de brume&nbsp;» d’Hélène Marchand.</p>
+      <p class="chat-message" data-role="assistant" data-step="2" data-placeholder>[Résumé détaillé, fluide et assuré, mais inventé : à rédiger]</p>
+    </div>
+    <p class="demo-reveal" data-step="3">Ce roman et cette autrice n’existent pas.</p>
+    <p class="scene-lead emphasis" data-step="4">Le modèle produit une suite de mots vraisemblable, même sans rien de vrai à dire.</p>
+  </article>
+
+  <article class="scene scene-transition" id="scene-4-transition" data-chapter="4" aria-label="Transition vers l’éducation">
+    <blockquote class="transition-line" data-step="0"><p>«&nbsp;Maintenant que nous comprenons mieux son fonctionnement, voyons comment cette technologie peut nous aider dans notre propre apprentissage.&nbsp;»</p></blockquote>
+  </article>
+</section>
+
+<!-- ═════════ CHAPITRE 5 : L’APPLICATION ═════════ -->
+<section class="chapter" id="chapter-5" data-chapter="5" aria-label="Chapitre 5 : l’IA et l’éducation">
+
+  <article class="scene" id="scene-5-eleve" data-chapter="5" aria-label="Un élève et sa question">
+    <h2 class="scene-title" data-step="0">Un élève devant son exercice</h2>
+    <div class="chat-window" data-step="1">
+      <p class="chat-message" data-role="user">Je ne comprends pas ce qu’est une fonction affine.</p>
+    </div>
+    <p class="scene-lead" data-step="2">La question de l’élève devient le point de départ.</p>
+  </article>
+
+  <article class="scene" id="scene-5-outils" data-chapter="5" aria-label="Les outils">
+    <h2 class="scene-title" data-step="0">Des outils, des usages</h2>
+    <ul class="tool-list" data-verify>
+      <li class="tool" data-step="1"><h3>Assistants conversationnels</h3><p>ChatGPT, Gemini : expliquer, reformuler, questionner.</p></li>
+      <li class="tool" data-step="2"><h3>NotebookLM</h3><p>Travailler à partir de ses propres documents.</p></li>
+    </ul>
+    <ul class="use-list">
+      <li class="use" data-step="3">Expliquer un concept difficile</li>
+      <li class="use" data-step="4">S’entraîner et réviser</li>
+      <li class="use" data-step="5">Résumer et organiser son cours</li>
+      <li class="use" data-step="6">Poser de meilleures questions et vérifier sa compréhension</li>
+    </ul>
+  </article>
+
+  <article class="scene" id="scene-5-scenario" data-chapter="5" aria-label="Scénario : comprendre une notion de maths">
+    <h2 class="scene-title" data-step="0">Pas à pas, jusqu’à l’autonomie</h2>
+    <ol class="chat-thread">
+      <li class="chat-message" data-role="user" data-step="1">Explique-moi ce qu’est une fonction affine.</li>
+      <li class="chat-message" data-role="assistant" data-step="1" data-placeholder>[Explication à rédiger]</li>
+      <li class="chat-message" data-role="user" data-step="2">C’est encore trop compliqué. Peux-tu faire plus simple&nbsp;?</li>
+      <li class="chat-message" data-role="assistant" data-step="2" data-placeholder>[Explication simplifiée à rédiger]</li>
+      <li class="chat-message" data-role="user" data-step="3">Montre-moi un exemple résolu.</li>
+      <li class="chat-message" data-role="assistant" data-step="3" data-placeholder>[Exemple résolu à rédiger]</li>
+      <li class="chat-message" data-role="user" data-step="4">Donne-moi un exercice similaire, sans la correction.</li>
+    </ol>
+    <p class="scene-lead emphasis" data-step="5">Puis l’élève le résout seul.</p>
+  </article>
+
+  <article class="scene" id="scene-5-consigne" data-chapter="5" aria-label="La qualité de la consigne">
+    <h2 class="scene-title" data-step="0">La consigne change la réponse</h2>
+    <div class="prompt-compare">
+      <section class="prompt prompt-weak" data-step="1"><h3>Consigne vague</h3><p class="prompt-text">«&nbsp;Explique-moi les dérivées.&nbsp;»</p><p class="prompt-result" data-step="3" data-placeholder>[Résultat : réponse générale]</p></section>
+      <section class="prompt prompt-strong" data-step="2"><h3>Consigne précise</h3><p class="prompt-text">«&nbsp;Je suis en première. Explique-moi la dérivée avec un exemple simple, puis donne-moi un exercice sans la correction.&nbsp;»</p><p class="prompt-result" data-step="4" data-placeholder>[Résultat : réponse adaptée]</p></section>
+    </div>
+  </article>
+
+  <article class="scene" id="scene-5-limites" data-chapter="5" aria-label="Les limites">
+    <h2 class="scene-title" data-step="0">Les limites à garder en tête</h2>
+    <ul class="limit-list">
+      <li class="limit" data-step="1">L’IA peut donner de fausses informations.</li>
+      <li class="limit" data-step="2">On peut trop dépendre des réponses toutes faites.</li>
+      <li class="limit" data-step="3">Copier une solution n’est pas la comprendre.</li>
+      <li class="limit" data-step="4">Les informations importantes se vérifient dans des sources fiables.</li>
+    </ul>
+  </article>
+
+  <article class="scene scene-final" id="scene-5-final" data-chapter="5" aria-label="Message final">
+    <figure class="final-visual" data-step="0"><svg class="illustration" data-illustration="final" viewBox="0 0 1200 500" aria-hidden="true"><!-- réseau, ligne du temps, élève : image finale qui réunit l’histoire --></svg></figure>
+    <blockquote class="final-message" data-step="1"><p>«&nbsp;L’intelligence artificielle peut nous aider à apprendre, mais elle ne doit pas apprendre à notre place.&nbsp;»</p></blockquote>
+  </article>
+</section>
+
+</main>
+
+<!-- Pied d’interface : navigation et progression -->
+<footer id="hud-bottom" class="hud hud-bottom">
+  <button type="button" id="btn-prev" aria-label="Étape précédente">Précédent</button>
+  <div id="progress" class="progress" role="progressbar" aria-label="Progression de la présentation" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="progress-bar" class="progress-bar"></span></div>
+  <span id="chapter-name" class="chapter-name"></span>
+  <button type="button" id="btn-next" aria-label="Étape suivante">Suivant</button>
+</footer>
+
+<div id="live-region" class="visually-hidden" aria-live="polite"></div>
+
+<!-- Superpositions -->
+<div id="help-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="help-title" hidden>
+  <div class="overlay-panel">
+    <h2 id="help-title">Commandes</h2>
+    <dl class="shortcut-list">
+      <div><dt><kbd>→</kbd> <kbd>Espace</kbd></dt><dd>Étape suivante</dd></div>
+      <div><dt><kbd>←</kbd></dt><dd>Étape précédente</dd></div>
+      <div><dt><kbd>F</kbd></dt><dd>Plein écran</dd></div>
+      <div><dt><kbd>S</kbd></dt><dd>Sources</dd></div>
+      <div><dt><kbd>H</kbd></dt><dd>Aide</dd></div>
+      <div><dt><kbd>Échap</kbd></dt><dd>Fermer</dd></div>
+    </dl>
+    <p>Sur téléphone&nbsp;: touche le côté droit ou balaie vers la gauche pour avancer.</p>
+    <button type="button" class="overlay-close" data-close>Fermer</button>
+  </div>
+</div>
+
+<aside id="sources-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="sources-title" hidden>
+  <div class="overlay-panel">
+    <h2 id="sources-title">Sources</h2>
+    <p>Les sources seront ajoutées après vérification de chaque information.</p>
+    <section data-chapter="2"><h3>Chapitre 2</h3><ul><li data-placeholder>À compléter</li></ul></section>
+    <section data-chapter="3"><h3>Chapitre 3</h3><ul><li data-placeholder>À compléter</li></ul></section>
+    <section data-chapter="4"><h3>Chapitre 4</h3><ul><li data-placeholder>À compléter</li></ul></section>
+    <section data-chapter="5"><h3>Chapitre 5</h3><ul><li data-placeholder>À compléter</li></ul></section>
+    <button type="button" class="overlay-close" data-close>Fermer</button>
+  </div>
+</aside>
+
+</body>
+</html>
