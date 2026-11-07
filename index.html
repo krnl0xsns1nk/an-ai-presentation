@@ -54,6 +54,7 @@
     </ol>
   </nav>
   <div class="hud-tools">
+    <button type="button" id="btn-jump">Aller à</button>
     <button type="button" id="btn-sources" aria-haspopup="dialog">Sources</button>
     <button type="button" id="btn-help" aria-haspopup="dialog">Aide</button>
     <button type="button" id="btn-fullscreen">Plein écran</button>
@@ -336,7 +337,7 @@
     <h2 class="scene-title" data-step="0">La consigne change la réponse</h2>
     <div class="prompt-compare">
       <section class="prompt prompt-weak" data-step="1"><h3>Consigne vague</h3><p class="prompt-text">«&nbsp;Explique-moi les dérivées.&nbsp;»</p><p class="prompt-result" data-step="3" data-placeholder>[Résultat : réponse générale]</p></section>
-      <section class="prompt prompt-strong" data-step="2"><h3>Consigne précise</h3><p class="prompt-text">«&nbsp;Je suis en première. Explique-moi la dérivée avec un exemple simple, puis donne-moi un exercice sans la correction.&nbsp;»</p><p class="prompt-result" data-step="4" data-placeholder>[Résultat : réponse adaptée]</p></section>
+      <section class="prompt prompt-strong" data-step="2"><h3>Consigne précise</h3><p class="prompt-text">«&nbsp;Je suis en 2ème Bac. Explique-moi la dérivée avec un exemple simple, puis donne-moi un exercice sans la correction.&nbsp;»</p><p class="prompt-result" data-step="4" data-placeholder>[Résultat : réponse adaptée]</p></section>
     </div>
   </article>
 
@@ -403,5 +404,13 @@
   </div>
 </aside>
 
+<nav id="jump-overlay" class="overlay" role="dialog" aria-modal="true" aria-labelledby="jump-title" hidden>
+  <div class="overlay-panel">
+    <h2 id="jump-title">Aller à</h2>
+    <button type="button" class="overlay-close" data-close>Fermer</button>
+    <div id="jump-list"></div>
+  </div>
+</nav>
+<small class="copyright">© 2026 Saad Eddin Zaki</small>
 </body>
 </html>

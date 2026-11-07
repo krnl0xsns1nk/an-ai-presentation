@@ -281,3 +281,20 @@ html.no-js .hud,html.no-js .layer{display:none}
 .scene-thanks video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
 .hud{transition:opacity .6s}
 html.is-video .hud,html.is-video .layer-timeline{opacity:0;pointer-events:none}
+
+
+#jump-list h3{margin:14px 0 2px}
+#jump-list ul{margin:0}
+#jump-list button{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;padding:10px 4px;font-size:.95rem;opacity:.85}
+#jump-list button[aria-current]{color:var(--signal);opacity:1}
+#jump-overlay .overlay-panel{max-height:80vh}
+
+/* en plein écran, seul « Aller à » reste, très discret */
+html.is-fullscreen .hud-tools{opacity:1}
+html.is-fullscreen .hud-tools button:not(#btn-jump){opacity:0;pointer-events:none}
+html.is-fullscreen #btn-jump{opacity:.3}
+
+.copyright{position:fixed;z-index:5;right:clamp(14px,3vw,32px);
+  bottom:calc(var(--hud-h) + env(safe-area-inset-bottom,0px) - 4px);
+  font-size:.7rem;color:var(--mute);opacity:.45;pointer-events:none}
+@media (max-width:700px){.copyright{display:none}}

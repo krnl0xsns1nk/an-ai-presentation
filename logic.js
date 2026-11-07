@@ -1,7 +1,7 @@
 /* ═══════════════════════════════════════════════════════════════
    logic.js : Intelligence artificielle, un voyage
    Dépend de index.html (structure) et style.css (classes d’état).
-   Modules : Art · Net · Llm · Hud · Overlays · Fullscreen · Deck · Controls
+   Modules : Art · Net · Llm · Hud · Overlays · Screen · Deck · Menu · Controls
    ═══════════════════════════════════════════════════════════════ */
 (() => {
 'use strict';
@@ -238,7 +238,7 @@ const Hud = (() => {
   };
 })();
 
-/* ───────── 6. Superpositions (aide, sources) ───────── */
+/* ───────── 6. Superpositions (aide, sources, aller à) ───────── */
 const Overlays = (() => {
   let openEl = null, back = null;
   const focusables = () => $$('button,[href],input', openEl).filter(n => !n.disabled);
@@ -271,7 +271,7 @@ const Screen = (() => {
   };
 })();
 
-/* ───────── 8. Moteur : scènes, étapes, navigation ───────── */
+/* ───────── 8. Moteur : scènes, étapes, navigation, sauts ───────── */
 const Deck = (() => {
   const scenes = $$('.stage .scene').map((el, index) => {
     const items = $$('[data-step]', el);
@@ -283,21 +283,27 @@ const Deck = (() => {
   const state = { i: 0, lock: 0 };
   // Comportements propres à certaines scènes
   const hooks = {
-    'scene-4-machine': 
-    { step: step => Llm.setStep(step), 
-      exit: () => Llm.stop() },
-    'scene-5-merci': {
-  step: step => { const v = $('#thanks-video');
-    document.documentElement.classList.add('is-video');
-    if (step === 1) { v.currentTime = 0; v.muted = false;
-      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
-    else { v.pause(); v.currentTime = 0; } },
-  exit: () => { const v = $('#thanks-video'); v.pause(); v.currentTime = 0;
-    document.documentElement.classList.remove('is-video'); }
-}
+    'scene-4-machine': {
+      step: step => Llm.setStep(step),
+      exit: () => Llm.stop()
+    },
+    'scene-5-merci': {   // vidéo plein écran : étape 0 = image fixe, étape 1 = lecture
+      step: step => {
+        const v = $('#thanks-video'); if (!v) return;
+        document.documentElement.classList.add('is-video');
+        if (step === 1) {
+          v.currentTime = 0; v.muted = false;
+          v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+        } else { v.pause(); v.currentTime = 0; }
+      },
+      exit: () => {
+        const v = $('#thanks-video'); if (v) { v.pause(); v.currentTime = 0; }
+        document.documentElement.classList.remove('is-video');
+      }
+    }
   };
 
-  function applyStep(s, step) {   // identique en avant et en arrière : l’état dépend seulement de l’étape
+  function applyStep(s, step) {   // identique en avant, en arrière et en saut : l’état dépend seulement de l’étape
     s.items.forEach(n => { const at = +n.dataset.step || 0, out = n.dataset.stepOut !== undefined ? +n.dataset.stepOut : Infinity;
       n.classList.toggle('is-visible', step >= at && step < out); });
     s.freeArt.forEach(n => n.classList.add('is-visible'));
@@ -306,32 +312,65 @@ const Deck = (() => {
   }
   const enterScene = (s, step) => { s.el.classList.add('is-active'); applyStep(s, step); Hud.timeline(s); Hud.announce(s); };
   const exitScene = s => { s.el.classList.remove('is-active'); if (hooks[s.id] && hooks[s.id].exit) hooks[s.id].exit(); };
-  const advanceStep = (s, step) => applyStep(s, step);
-  const reverseStep = (s, step) => applyStep(s, step);
   function refresh() {
     const s = scenes[flat[state.i][0]];
     scenes.forEach(o => o.el.classList.toggle('is-past', o.index < s.index));
     Hud.update(s, state.i, flat.length);
     try { sessionStorage.setItem(CONFIG.storageKey, state.i); } catch (e) { /* facultatif */ }
   }
-  function go(d) {   // +1 avancer, −1 reculer ; refuse les appuis trop rapprochés
+  function jump(j) {   // saute vers n’importe quelle étape de la liste plate ; refuse les appuis trop rapprochés
+    if (j < 0 || j >= flat.length || j === state.i) return false;
     const now = performance.now(); if (now - state.lock < CONFIG.lockMs) return false;
-    const j = state.i + d; if (j < 0 || j >= flat.length) return false;
     state.lock = now;
     const [a] = flat[state.i], [b, k] = flat[j];
-    if (a !== b) { exitScene(scenes[a]); enterScene(scenes[b], k); } else (d > 0 ? advanceStep : reverseStep)(scenes[b], k);
+    if (a !== b) { exitScene(scenes[a]); enterScene(scenes[b], k); } else applyStep(scenes[b], k);
     state.i = j; refresh(); return true;
   }
+  const go = d => jump(state.i + d);   // +1 avancer, −1 reculer
+  const goToChapter = n => jump(flat.findIndex(([si]) => scenes[si].chapter === n));
+  const goToScene = id => jump(flat.findIndex(([si]) => scenes[si].id === id));
   return {
-    state, go, scenes, total: flat.length,
+    state, go, jump, goToChapter, goToScene, scenes, total: flat.length,
+    current: () => scenes[flat[state.i][0]],
     init() {
       let start = 0; try { const v = +sessionStorage.getItem(CONFIG.storageKey); if (v > 0 && v < flat.length) start = v; } catch (e) { /* facultatif */ }
+      const [s0, k0] = flat[start];
+      if (scenes[s0].id === 'scene-5-merci' && k0 > 0) start -= k0;   // un rechargement ne relance pas la vidéo
       state.i = start; const [si, k] = flat[start]; enterScene(scenes[si], k); refresh();
     }
   };
 })();
 
-/* ───────── 9. Commandes : clavier, toucher, boutons ───────── */
+/* ───────── 9. Menu « Aller à » ───────── */
+const Menu = (() => {
+  const list = () => $('#jump-list');
+  return {
+    build() {
+      const box = list(); if (!box) return;
+      let ul = null, ch = 0;
+      Deck.scenes.forEach(s => {
+        if (s.chapter !== ch) {
+          ch = s.chapter;
+          const h = document.createElement('h3'); h.textContent = `${ch}. ${CHAPTER_NAMES[ch - 1]}`;
+          ul = document.createElement('ul'); box.append(h, ul);
+        }
+        const li = document.createElement('li'), b = document.createElement('button');
+        b.type = 'button'; b.dataset.scene = s.id; b.textContent = s.label; li.append(b); ul.append(li);
+      });
+      box.addEventListener('click', e => {
+        const b = e.target.closest('button[data-scene]'); if (!b) return;
+        Overlays.close(); Deck.goToScene(b.dataset.scene);
+      });
+    },
+    open() {
+      Overlays.open('jump-overlay');
+      const cur = Deck.current().id;
+      $$('#jump-list button').forEach(b => { const on = b.dataset.scene === cur; b.toggleAttribute('aria-current', on); if (on) b.scrollIntoView({ block: 'center' }); });
+    }
+  };
+})();
+
+/* ───────── 10. Commandes : clavier, toucher, boutons ───────── */
 function bindControls() {
   const go = d => Deck.go(d);
   addEventListener('keydown', e => {
@@ -343,7 +382,11 @@ function bindControls() {
     if (k === 'ArrowRight' || k === 'PageDown') { e.preventDefault(); if (!e.repeat) go(1); }
     else if (k === ' ') { if (t.closest && t.closest('button')) return; e.preventDefault(); if (!e.repeat) go(1); }
     else if (k === 'ArrowLeft' || k === 'PageUp') { e.preventDefault(); if (!e.repeat) go(-1); }
+    else if (/^[1-5]$/.test(k)) Deck.goToChapter(+k);
+    else if (k === 'Home') Deck.jump(0);
+    else if (k === 'End') Deck.goToScene('scene-5-merci');
     else if (k === 'f' || k === 'F') Screen.toggle();
+    else if (k === 'g' || k === 'G') Menu.open();
     else if (k === 's' || k === 'S') Overlays.open('sources-overlay');
     else if (k === 'h' || k === 'H' || k === '?') Overlays.open('help-overlay');
     else if (k === 'v' || k === 'V') document.documentElement.classList.toggle('show-verify');   // aide de relecture
@@ -364,11 +407,12 @@ function bindControls() {
   $('#btn-fullscreen').addEventListener('click', () => Screen.toggle());
   $('#btn-help').addEventListener('click', () => Overlays.open('help-overlay'));
   $('#btn-sources').addEventListener('click', () => Overlays.open('sources-overlay'));
+  const bj = $('#btn-jump'); if (bj) bj.addEventListener('click', () => Menu.open());
   $$('.overlay').forEach(o => o.addEventListener('click', e => { if (e.target === o || e.target.closest('[data-close]')) Overlays.close(); }));
 }
 
-/* ───────── 10. Démarrage ───────── */
+/* ───────── 11. Démarrage ───────── */
 document.documentElement.classList.remove('no-js');
-Art.build(); Net.init(); Llm.init(); Screen.init(); bindControls(); Deck.init();
-window.Presentation = { go: Deck.go, state: Deck.state, scenes: Deck.scenes };   // pour tester dans la console
+Art.build(); Net.init(); Llm.init(); Screen.init(); bindControls(); Deck.init(); Menu.build();
+window.Presentation = { go: Deck.go, jump: Deck.jump, state: Deck.state, scenes: Deck.scenes };   // pour tester dans la console
 })();
