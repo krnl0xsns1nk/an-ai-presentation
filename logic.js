@@ -282,7 +282,20 @@ const Deck = (() => {
   const flat = []; scenes.forEach(s => { for (let k = 0; k < s.steps; k++) flat.push([s.index, k]); });
   const state = { i: 0, lock: 0 };
   // Comportements propres à certaines scènes
-  const hooks = { 'scene-4-machine': { step: step => Llm.setStep(step), exit: () => Llm.stop() } };
+  const hooks = {
+    'scene-4-machine': 
+    { step: step => Llm.setStep(step), 
+      exit: () => Llm.stop() },
+    'scene-5-merci': {
+  step: step => { const v = $('#thanks-video');
+    document.documentElement.classList.add('is-video');
+    if (step === 1) { v.currentTime = 0; v.muted = false;
+      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); }); }
+    else { v.pause(); v.currentTime = 0; } },
+  exit: () => { const v = $('#thanks-video'); v.pause(); v.currentTime = 0;
+    document.documentElement.classList.remove('is-video'); }
+}
+  };
 
   function applyStep(s, step) {   // identique en avant et en arrière : l’état dépend seulement de l’étape
     s.items.forEach(n => { const at = +n.dataset.step || 0, out = n.dataset.stepOut !== undefined ? +n.dataset.stepOut : Infinity;

@@ -275,3 +275,9 @@ html.no-js .hud,html.no-js .layer{display:none}
   *,*::before,*::after{transition-duration:.01ms!important;transition-delay:0s!important;animation:none!important}
   .scene,.scene.is-active,.scene.is-past,[data-step],[data-step].is-visible{transform:none!important}
 }
+
+
+.scene-thanks{padding:0;background:#fff}
+.scene-thanks video{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#fff}
+.hud{transition:opacity .6s}
+html.is-video .hud,html.is-video .layer-timeline{opacity:0;pointer-events:none}
